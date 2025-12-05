@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Mastery Quiz</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 { text-align: center; color: var(--primary); }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover { background-color: var(--secondary); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Quiz Section */
+        #quiz-section, #result-section { display: none; }
+        
+        .question-card {
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .answer-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #ecfdf5;
+            border-left: 4px solid #10b981;
+            border-radius: 4px;
+        }
+
+        .options { margin-top: 15px; display: flex; gap: 10px; }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .recommendation-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="home-section">
+        <h1>DSA Mastery Hub</h1>
+        <p style="text-align: center;">Select a topic to generate 10 random questions and test your knowledge.</p>
+        <div class="category-grid" id="category-list">
+            </div>
+    </div>
+
+    <div id="quiz-section">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 id="quiz-title">Topic</h2>
+            <span id="progress">1/10</span>
+        </div>
+        <hr>
+        <div id="question-container">
+            </div>
+        <button class="btn" id="finish-btn" style="width: 100%; margin-top: 20px; display: none;" onclick="calculateResults()">Finish Test & See Analysis</button>
+    </div>
+
+    <div id="result-section">
+        <h1>Performance Analysis</h1>
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+        </div>
+        
+        <div class="recommendation-box">
+            <h3>Daily Practice Plan</h3>
+            <p id="recommendation-text">Loading...</p>
+        </div>
+
+        <button class="btn" onclick="location.reload()" style="display: block; margin: 20px auto;">Back to Home</button>
+    </div>
+</div>
+
+<script>
+    // --- DATA SOURCE (EXPAND THIS TO 150+ QUESTIONS) ---
+    // I have added a sample set. You can copy-paste this pattern to add more.
+    const database = [
+        // ARRAYS (Add 20-30 questions here)
+        { id: 1, type: 'Arrays', q: "Find the maximum subarray sum (Kadane's Algorithm).", ans: "Initialize max_so_far = INT_MIN, max_ending_here = 0. Loop array: add current element to max_ending_here. If max_so_far < max_ending_here, update max_so_far. If max_ending_here < 0, reset it to 0." },
+        { id: 2, type: 'Arrays', q: "Rotate an array by K positions.", ans: "Reverse the whole array. Then reverse the first K elements. Finally, reverse the remaining n-K elements." },
+        { id: 3, type: 'Arrays', q: "Find the duplicate number in an array of N+1 integers.", ans: "Use the Floyd's Tortoise and Hare (Cycle Detection) algorithm. Treat values as pointers." },
+        { id: 4, type: 'Arrays', q: "Merge two sorted arrays without extra space.", ans: "Use the gap method (Shell sort logic) or compare elements from end of first array and start of second array, swapping if needed, then sort." },
+        { id: 5, type: 'Arrays', q: "Sort an array of 0s, 1s, and 2s (Dutch National Flag).", ans: "Use three pointers: low, mid, and high. If a[mid]==0, swap(low, mid), low++, mid++. If 1, mid++. If 2, swap(mid, high), high--." },
+        { id: 6, type: 'Arrays', q: "Find the missing number in an array of 1 to N.", ans: "Calculate sum of 1 to N using n*(n+1)/2. Subtract actual sum of array elements from it." },
+        { id: 7, type: 'Arrays', q: "Find common elements in three sorted arrays.", ans: "Use three pointers i, j, k. If x[i]==y[j]==z[k], print it. Else increment the pointer pointing to the smallest value." },
+        { id: 8, type: 'Arrays', q: "Find the first repeating element in an array of integers.", ans: "Use a Hash Map to store frequencies. Iterate array again and return first element with freq > 1." },
+        { id: 9, type: 'Arrays', q: "Stock Buy and Sell (Single transaction).", ans: "Track 'minPrice' so far and 'maxProfit'. For each price, profit = price - minPrice. Update maxProfit if higher." },
+        { id: 10, type: 'Arrays', q: "Trapping Rain Water.", ans: "Precompute left_max and right_max arrays. Water at index i = min(left_max[i], right_max[i]) - arr[i]." },
+        { id: 11, type: 'Arrays', q: "Spiral traversal of a matrix.", ans: "Use 4 boundaries: top, bottom, left, right. Loop while top<=bottom && left<=right, adjusting boundaries after each row/col traversal." },
+        
+        // STRINGS (Add 20-30 questions here)
+        { id: 12, type: 'Strings', q: "Check if a string is a Palindrome.", ans: "Two pointers: one at start, one at end. Compare characters while moving inwards. If mismatch, false." },
+        { id: 13, type: 'Strings', q: "Find duplicates characters in a string.", ans: "Use a Map or frequency array (size 256 for ASCII) to count occurrences." },
+        { id: 14, type: 'Strings', q: "Longest Substring Without Repeating Characters.", ans: "Sliding Window technique using a Set or Map to store index of characters." },
+        { id: 15, type: 'Strings', q: "Check if two strings are Anagrams.", ans: "Sort both strings and compare OR use a frequency counter array." },
+        { id: 16, type: 'Strings', q: "Convert Roman to Integer.", ans: "Map symbols to values. Iterate string; if current value < next value, subtract current from total, else add it." },
+        { id: 17, type: 'Strings', q: "Longest Common Prefix.", ans: "Sort array of strings. Compare only the first and last string characters to find common prefix." },
+        { id: 18, type: 'Strings', q: "Implement strStr() / Find substring.", ans: "Naive approach O(N*M) or KMP Algorithm for O(N+M)." },
+        { id: 19, type: 'Strings', q: "Reverse words in a string.", ans: "Split string by spaces, reverse the list of words, and join them back." },
+        { id: 20, type: 'Strings', q: "Valid Parentheses.", ans: "Use a Stack. Push opening brackets. When closing bracket appears, check if matches top of stack." },
+        { id: 21, type: 'Strings', q: "Longest Palindromic Substring.", ans: "Expand around center technique for every character (consider both odd and even lengths)." },
+
+        // LINKED LISTS
+        { id: 22, type: 'Linked List', q: "Reverse a Linked List.", ans: "Iterative: Use prev, curr, and next pointers. Recursive: head.next.next = head." },
+        { id: 23, type: 'Linked List', q: "Detect Cycle in a Linked List.", ans: "Floyd’s Cycle Detection (Slow and Fast pointers). If they meet, cycle exists." },
+        { id: 24, type: 'Linked List', q: "Merge two sorted Linked Lists.", ans: "Dummy node approach. Compare heads, attach smaller to current, move pointer." },
+        { id: 25, type: 'Linked List', q: "Remove N-th node from end of list.", ans: "Two pointers. Move fast pointer N steps ahead. Then move both fast and slow until fast reaches end. Remove slow.next." },
+        { id: 26, type: 'Linked List', q: "Find intersection point of two Linked Lists.", ans: "Get lengths. Move pointer of longer list by difference in lengths. Then move both until they collide." },
+        { id: 27, type: 'Linked List', q: "Check if Linked List is Palindrome.", ans: "Find middle, reverse the second half, then compare first half with second half." },
+        { id: 28, type: 'Linked List', q: "Flatten a Multilevel Doubly Linked List.", ans: "DFS or Stack approach. Process child nodes before next nodes." },
+        { id: 29, type: 'Linked List', q: "Add two numbers represented by Linked Lists.", ans: "Traverse both lists, maintain carry. Create new nodes for sum % 10." },
+        { id: 30, type: 'Linked List', q: "Clone a Linked List with random pointer.", ans: "Three passes: 1. Interweave new nodes. 2. Copy random pointers. 3. Separate lists." },
+        { id: 31, type: 'Linked List', q: "Middle of the Linked List.", ans: "Slow and Fast pointers. When fast reaches end, slow is at middle." },
+
+        // TREES (Sample)
+        { id: 32, type: 'Trees', q: "Maximum Depth of Binary Tree.", ans: "Recursive: max(depth(left), depth(right)) + 1." },
+        { id: 33, type: 'Trees', q: "Invert Binary Tree.", ans: "Recursive: swap left and right children, then call recursively on children." },
+        { id: 34, type: 'Trees', q: "Diameter of Binary Tree.", ans: "Longest path between any two nodes. Update max_diameter at every node as (left_height + right_height)." },
+        { id: 35, type: 'Trees', q: "Level Order Traversal.", ans: "Use a Queue. Push root. While queue not empty, pop, add to result, push children." },
+        { id: 36, type: 'Trees', q: "Validate Binary Search Tree.", ans: "Recursion with range (min, max). Left child must be < root, Right child > root." },
+        { id: 37, type: 'Trees', q: "Lowest Common Ancestor in BST.", ans: "If both p, q < root, go left. If both > root, go right. Else root is LCA." },
+        { id: 38, type: 'Trees', q: "Binary Tree Maximum Path Sum.", ans: "Recursive. For each node, calculate max gain from left and right. Update global max." },
+        { id: 39, type: 'Trees', q: "Serialize and Deserialize Binary Tree.", ans: "Use Preorder traversal (DFS) with a marker (e.g., 'null') for empty nodes." },
+        { id: 40, type: 'Trees', q: "Kth Smallest Element in a BST.", ans: "Inorder traversal gives sorted elements. Return the k-th element." },
+        { id: 41, type: 'Trees', q: "Subtree of Another Tree.", ans: "Traverse main tree, for each node check if subtree matches using an 'isSameTree' helper." },
+    ];
+
+    // --- LOGIC ---
+
+    const state = {
+        currentQuestions: [],
+        score: { solved: 0, unsolved: 0 },
+        totalQuestions: 10
+    };
+
+    function init() {
+        const types = [...new Set(database.map(item => item.type))];
+        const categoryList = document.getElementById('category-list');
+        
+        types.forEach(type => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = type;
+            btn.onclick = () => startQuiz(type);
+            categoryList.appendChild(btn);
+        });
+    }
+
+    function startQuiz(type) {
+        // Filter questions by type and shuffle
+        const filtered = database.filter(q => q.type === type);
+        
+        // Randomly pick 10 (or less if not enough questions)
+        state.currentQuestions = filtered.sort(() => 0.5 - Math.random()).slice(0, 10);
+        state.score = { solved: 0, unsolved: 0 };
+        
+        document.getElementById('home-section').style.display = 'none';
+        document.getElementById('quiz-section').style.display = 'block';
+        document.getElementById('quiz-title').innerText = `${type} Test`;
+        
+        renderQuestions();
+    }
+
+    function renderQuestions() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        state.currentQuestions.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="badge">Question ${index + 1}</div>
+                <h3>${q.q}</h3>
+                <div class="options">
+                    <button class="btn btn-outline" onclick="markSolved(${index}, this)">I Solved It</button>
+                    <button class="btn btn-outline" onclick="showAnswer(${index})">Show Answer</button>
+                </div>
+                <div id="ans-${index}" class="answer-box">
+                    <strong>Approach/Hint:</strong><br>
+                    ${q.ans}
+                    <div style="margin-top:10px;">
+                        <button class="btn" style="background:#ef4444; font-size:0.8rem;" onclick="markUnsolved(${index}, this)">Couldn't Solve</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        document.getElementById('finish-btn').style.display = 'block';
+    }
+
+    function showAnswer(index) {
+        document.getElementById(`ans-${index}`).style.display = 'block';
+    }
+
+    function markSolved(index, btnElement) {
+        // Visual feedback
+        btnElement.style.background = '#10b981';
+        btnElement.style.color = 'white';
+        btnElement.innerText = 'Marked Solved';
+        // Disable sibling buttons to prevent double scoring
+        btnElement.nextElementSibling.disabled = true;
+        
+        // We calculate score at the end based on UI state or tracking array
+        // For simplicity, we just track in state
+        state.currentQuestions[index].status = 'solved';
+    }
+
+    function markUnsolved(index, btnElement) {
+        state.currentQuestions[index].status = 'unsolved';
+        btnElement.innerText = 'Marked Failed';
+        btnElement.disabled = true;
+    }
+
+    function calculateResults() {
+        let solvedCount = 0;
+        state.currentQuestions.forEach(q => {
+            if (q.status === 'solved') solvedCount++;
+        });
+        
+        const unsolvedCount = state.currentQuestions.length - solvedCount;
+        
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+        
+        renderChart(solvedCount, unsolvedCount);
+        giveRecommendation(solvedCount, state.currentQuestions.length);
+    }
+
+    function renderChart(solved, unsolved) {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Solved', 'Needs Practice'],
+                datasets: [{
+                    label: '# of Questions',
+                    data: [solved, unsolved],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.6)',
+                        'rgba(239, 68, 68, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 10 }
+                }
+            }
+        });
+    }
+
+    function giveRecommendation(score, total) {
+        const percentage = (score / total) * 100;
+        const recText = document.getElementById('recommendation-text');
+        
+        let msg = "";
+        
+        if (percentage >= 90) {
+            msg = "🌟 <strong>Excellent!</strong> You are ready for hard problems.<br>Suggested Routine: Solve <strong>2 Hard</strong> problems per day to maintain this streak.";
+        } else if (percentage >= 70) {
+            msg = "👍 <strong>Good Job!</strong> You have strong basics.<br>Suggested Routine: Solve <strong>2 Medium + 1 Hard</strong> problem per day.";
+        } else if (percentage >= 40) {
+            msg = "⚠️ <strong>Average.</strong> You struggled with some concepts.<br>Suggested Routine: Solve <strong>3 Medium</strong> problems per day. Review the logic of the ones you missed.";
+        } else {
+            msg = "🛑 <strong>Needs Improvement.</strong> Don't give up!<br>Suggested Routine: Solve <strong>5 Easy + 2 Medium</strong> problems per day. Focus on understanding the patterns.";
+        }
+        
+        recText.innerHTML = msg;
+    }
+
+    // Initialize the app
+    init();
+
+</script>
+</body>
+</html>
