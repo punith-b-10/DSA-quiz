@@ -76,12 +76,21 @@
             display: none;
             margin-top: 15px;
             padding: 15px;
-            background-color: #ecfdf5;
-            border-left: 4px solid #10b981;
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--primary);
             border-radius: 4px;
         }
 
-        .options { margin-top: 15px; display: flex; gap: 10px; }
+        .options { margin-top: 15px; }
+
+        .verification-buttons {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #cbd5e1;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
 
         /* Chart Container */
         .chart-container {
@@ -147,72 +156,70 @@
 </div>
 
 <script>
-    // --- DATA SOURCE (EXPAND THIS TO 150+ QUESTIONS) ---
-    // I have added a sample set. You can copy-paste this pattern to add more.
-    const database = [// --- START OF NEW 50 QUESTIONS (Copy from here) ---
+    // --- DATA SOURCE ---
+    // Ensure all commas are correct between objects
+    const database = [
+        // STACKS & QUEUES
+        { id: 41, type: 'Stacks & Queues', q: "Implement a Stack using Queues.", ans: "Use two queues. For push: enqueue to q2, dequeue everything from q1 to q2, then swap names of q1 and q2." },
+        { id: 42, type: 'Stacks & Queues', q: "Implement a Queue using Stacks.", ans: "Use two stacks: input and output. Push to input. For pop/peek, if output is empty, move all from input to output." },
+        { id: 43, type: 'Stacks & Queues', q: "Next Greater Element.", ans: "Use a monotonic decreasing stack. Iterate array; while stack top < current, pop and mark current as 'next greater' for popped." },
+        { id: 44, type: 'Stacks & Queues', q: "Valid Parentheses.", ans: "Use a stack. Push opening brackets. If closing bracket comes, check if stack top matches. If stack empty at end, valid." },
+        { id: 45, type: 'Stacks & Queues', q: "Min Stack (O(1) getMin).", ans: "Use two stacks. One for actual values, second to store the minimum value seen so far at that state." },
+        { id: 46, type: 'Stacks & Queues', q: "LRU Cache Implementation.", ans: "Use a Hash Map + Doubly Linked List. Map stores key->node. List maintains order (most recently used at head)." },
+        { id: 47, type: 'Stacks & Queues', q: "Sliding Window Maximum.", ans: "Use a Deque (Double-ended queue). Store indices. Remove indices out of window from front. Remove smaller elements from back." },
+        { id: 48, type: 'Stacks & Queues', q: "Circular Queue Implementation.", ans: "Use an array with front and rear pointers. Next index = (current + 1) % size. Check (rear + 1) % size == front for full." },
+        { id: 49, type: 'Stacks & Queues', q: "Stock Span Problem.", ans: "Similar to Next Greater Element. Use stack to store indices. Span = current_index - stack_top_index." },
+        { id: 50, type: 'Stacks & Queues', q: "Celebrity Problem.", ans: "Use a stack. Push all. Pop two (A, B). If A knows B, A is not celebrity (discard A). Push B. Repeat. Verify last one." },
 
-    // STACKS & QUEUES (10 Questions)
-    { id: 41, type: 'Stacks & Queues', q: "Implement a Stack using Queues.", ans: "Use two queues. For push: enqueue to q2, dequeue everything from q1 to q2, then swap names of q1 and q2." },
-    { id: 42, type: 'Stacks & Queues', q: "Implement a Queue using Stacks.", ans: "Use two stacks: input and output. Push to input. For pop/peek, if output is empty, move all from input to output." },
-    { id: 43, type: 'Stacks & Queues', q: "Next Greater Element.", ans: "Use a monotonic decreasing stack. Iterate array; while stack top < current, pop and mark current as 'next greater' for popped." },
-    { id: 44, type: 'Stacks & Queues', q: "Valid Parentheses.", ans: "Use a stack. Push opening brackets. If closing bracket comes, check if stack top matches. If stack empty at end, valid." },
-    { id: 45, type: 'Stacks & Queues', q: "Min Stack (O(1) getMin).", ans: "Use two stacks. One for actual values, second to store the minimum value seen so far at that state." },
-    { id: 46, type: 'Stacks & Queues', q: "LRU Cache Implementation.", ans: "Use a Hash Map + Doubly Linked List. Map stores key->node. List maintains order (most recently used at head)." },
-    { id: 47, type: 'Stacks & Queues', q: "Sliding Window Maximum.", ans: "Use a Deque (Double-ended queue). Store indices. Remove indices out of window from front. Remove smaller elements from back." },
-    { id: 48, type: 'Stacks & Queues', q: "Circular Queue Implementation.", ans: "Use an array with front and rear pointers. Next index = (current + 1) % size. Check (rear + 1) % size == front for full." },
-    { id: 49, type: 'Stacks & Queues', q: "Stock Span Problem.", ans: "Similar to Next Greater Element. Use stack to store indices. Span = current_index - stack_top_index." },
-    { id: 50, type: 'Stacks & Queues', q: "Celebrity Problem.", ans: "Use a stack. Push all. Pop two (A, B). If A knows B, A is not celebrity (discard A). Push B. Repeat. Verify last one." },
+        // GRAPHS
+        { id: 51, type: 'Graphs', q: "Number of Islands.", ans: "Iterate grid. If '1' found, increment count and start DFS/BFS to mark all connected '1's as visited (or '0')." },
+        { id: 52, type: 'Graphs', q: "Clone Graph.", ans: "Use BFS/DFS with a Hash Map to store copies of visited nodes (original_node -> cloned_node) to handle cycles." },
+        { id: 53, type: 'Graphs', q: "Detect Cycle in Directed Graph.", ans: "DFS with recursion stack tracking. If we reach a node already in the current recursion stack, cycle exists." },
+        { id: 54, type: 'Graphs', q: "Topological Sort (Kahn's Algorithm).", ans: "Compute in-degrees. Add nodes with 0 in-degree to Queue. Process queue, reduce neighbor in-degrees. If 0, add to queue." },
+        { id: 55, type: 'Graphs', q: "Dijkstra's Algorithm (Shortest Path).", ans: "Priority Queue (Min-Heap). Start at source (dist=0). Pop min dist node, relax neighbors. Update dist if shorter path found." },
+        { id: 56, type: 'Graphs', q: "Course Schedule (Can Finish?).", ans: "Model as directed graph. Check for cycles using DFS or Topological Sort (if count of processed nodes < total courses, cycle exists)." },
+        { id: 57, type: 'Graphs', q: "Word Ladder.", ans: "BFS for shortest path. Treat words as nodes. Edge exists if words differ by 1 char. Level order traversal gives shortest length." },
+        { id: 58, type: 'Graphs', q: "Prim's Algorithm (MST).", ans: "Greedy. Start arbitrary node. Use Priority Queue to pick smallest edge connecting visited set to unvisited set." },
+        { id: 59, type: 'Graphs', q: "Bipartite Graph Check.", ans: "BFS/DFS with 2 colors. Color start red. Neighbors blue. If neighbor has same color as current, not bipartite." },
+        { id: 60, type: 'Graphs', q: "Flood Fill Algorithm.", ans: "DFS/BFS starting from (sr, sc). Change color. Recurse to 4-directionally connected pixels with the same original color." },
 
-    // GRAPHS (10 Questions)
-    { id: 51, type: 'Graphs', q: "Number of Islands.", ans: "Iterate grid. If '1' found, increment count and start DFS/BFS to mark all connected '1's as visited (or '0')." },
-    { id: 52, type: 'Graphs', q: "Clone Graph.", ans: "Use BFS/DFS with a Hash Map to store copies of visited nodes (original_node -> cloned_node) to handle cycles." },
-    { id: 53, type: 'Graphs', q: "Detect Cycle in Directed Graph.", ans: "DFS with recursion stack tracking. If we reach a node already in the current recursion stack, cycle exists." },
-    { id: 54, type: 'Graphs', q: "Topological Sort (Kahn's Algorithm).", ans: "Compute in-degrees. Add nodes with 0 in-degree to Queue. Process queue, reduce neighbor in-degrees. If 0, add to queue." },
-    { id: 55, type: 'Graphs', q: "Dijkstra's Algorithm (Shortest Path).", ans: "Priority Queue (Min-Heap). Start at source (dist=0). Pop min dist node, relax neighbors. Update dist if shorter path found." },
-    { id: 56, type: 'Graphs', q: "Course Schedule (Can Finish?).", ans: "Model as directed graph. Check for cycles using DFS or Topological Sort (if count of processed nodes < total courses, cycle exists)." },
-    { id: 57, type: 'Graphs', q: "Word Ladder.", ans: "BFS for shortest path. Treat words as nodes. Edge exists if words differ by 1 char. Level order traversal gives shortest length." },
-    { id: 58, type: 'Graphs', q: "Prim's Algorithm (MST).", ans: "Greedy. Start arbitrary node. Use Priority Queue to pick smallest edge connecting visited set to unvisited set." },
-    { id: 59, type: 'Graphs', q: "Bipartite Graph Check.", ans: "BFS/DFS with 2 colors. Color start red. Neighbors blue. If neighbor has same color as current, not bipartite." },
-    { id: 60, type: 'Graphs', q: "Flood Fill Algorithm.", ans: "DFS/BFS starting from (sr, sc). Change color. Recurse to 4-directionally connected pixels with the same original color." },
+        // DYNAMIC PROGRAMMING
+        { id: 61, type: 'Dynamic Programming', q: "Climbing Stairs.", ans: "Fibonacci sequence. Ways(n) = Ways(n-1) + Ways(n-2). Base cases: ways(1)=1, ways(2)=2." },
+        { id: 62, type: 'Dynamic Programming', q: "Coin Change (Min Coins).", ans: "dp[amount]. Initialize with infinity. Iterate coins. dp[i] = min(dp[i], dp[i - coin] + 1)." },
+        { id: 63, type: 'Dynamic Programming', q: "Longest Increasing Subsequence.", ans: "dp[i] = max length ending at i. For j < i, if arr[i] > arr[j], dp[i] = max(dp[i], dp[j] + 1). O(N^2) or O(NlogN)." },
+        { id: 64, type: 'Dynamic Programming', q: "0/1 Knapsack Problem.", ans: "2D DP array. dp[i][w] = max value with first i items and weight limit w. Pick max of (exclude item, include item)." },
+        { id: 65, type: 'Dynamic Programming', q: "Longest Common Subsequence.", ans: "If s1[i] == s2[j], dp[i][j] = 1 + dp[i-1][j-1]. Else, max(dp[i-1][j], dp[i][j-1])." },
+        { id: 66, type: 'Dynamic Programming', q: "House Robber.", ans: "Cannot rob adjacent. dp[i] = max(arr[i] + dp[i-2], dp[i-1]). Keep running max." },
+        { id: 67, type: 'Dynamic Programming', q: "Edit Distance.", ans: "Operations: insert, delete, replace. If char match, dp[i][j] = dp[i-1][j-1]. Else 1 + min(insert, delete, replace)." },
+        { id: 68, type: 'Dynamic Programming', q: "Unique Paths in Grid.", ans: "dp[i][j] = dp[i-1][j] + dp[i][j-1]. Number of ways to reach cell is sum of ways from top and left." },
+        { id: 69, type: 'Dynamic Programming', q: "Jump Game.", ans: "Greedy. Track 'max_reachable' index. Iterate. If i > max_reachable, return false. Update max_reachable = max(i + jump)." },
+        { id: 70, type: 'Dynamic Programming', q: "Subset Sum Problem.", ans: "dp[i][sum]. Can we form 'sum' using first i items? True if dp[i-1][sum] is true OR dp[i-1][sum - arr[i]] is true." },
 
-    // DYNAMIC PROGRAMMING (10 Questions)
-    { id: 61, type: 'Dynamic Programming', q: "Climbing Stairs.", ans: "Fibonacci sequence. Ways(n) = Ways(n-1) + Ways(n-2). Base cases: ways(1)=1, ways(2)=2." },
-    { id: 62, type: 'Dynamic Programming', q: "Coin Change (Min Coins).", ans: "dp[amount]. Initialize with infinity. Iterate coins. dp[i] = min(dp[i], dp[i - coin] + 1)." },
-    { id: 63, type: 'Dynamic Programming', q: "Longest Increasing Subsequence.", ans: "dp[i] = max length ending at i. For j < i, if arr[i] > arr[j], dp[i] = max(dp[i], dp[j] + 1). O(N^2) or O(NlogN)." },
-    { id: 64, type: 'Dynamic Programming', q: "0/1 Knapsack Problem.", ans: "2D DP array. dp[i][w] = max value with first i items and weight limit w. Pick max of (exclude item, include item)." },
-    { id: 65, type: 'Dynamic Programming', q: "Longest Common Subsequence.", ans: "If s1[i] == s2[j], dp[i][j] = 1 + dp[i-1][j-1]. Else, max(dp[i-1][j], dp[i][j-1])." },
-    { id: 66, type: 'Dynamic Programming', q: "House Robber.", ans: "Cannot rob adjacent. dp[i] = max(arr[i] + dp[i-2], dp[i-1]). Keep running max." },
-    { id: 67, type: 'Dynamic Programming', q: "Edit Distance.", ans: "Operations: insert, delete, replace. If char match, dp[i][j] = dp[i-1][j-1]. Else 1 + min(insert, delete, replace)." },
-    { id: 68, type: 'Dynamic Programming', q: "Unique Paths in Grid.", ans: "dp[i][j] = dp[i-1][j] + dp[i][j-1]. Number of ways to reach cell is sum of ways from top and left." },
-    { id: 69, type: 'Dynamic Programming', q: "Jump Game.", ans: "Greedy. Track 'max_reachable' index. Iterate. If i > max_reachable, return false. Update max_reachable = max(i + jump)." },
-    { id: 70, type: 'Dynamic Programming', q: "Subset Sum Problem.", ans: "dp[i][sum]. Can we form 'sum' using first i items? True if dp[i-1][sum] is true OR dp[i-1][sum - arr[i]] is true." },
+        // SEARCHING & SORTING
+        { id: 71, type: 'Searching & Sorting', q: "Binary Search.", ans: "Sorted array. low=0, high=n-1. mid=(low+high)/2. If target < mid, high=mid-1. If target > mid, low=mid+1." },
+        { id: 72, type: 'Searching & Sorting', q: "Merge Sort.", ans: "Divide array in half. Recursively sort halves. Merge two sorted halves using two pointers. O(NlogN)." },
+        { id: 73, type: 'Searching & Sorting', q: "Quick Sort.", ans: "Pick pivot. Partition array so left < pivot and right > pivot. Recursively apply to left and right parts." },
+        { id: 74, type: 'Searching & Sorting', q: "Search in Rotated Sorted Array.", ans: "Binary Search. Determine which half is sorted. Check if target lies in that sorted range to decide direction." },
+        { id: 75, type: 'Searching & Sorting', q: "Kth Largest Element.", ans: "Use Min-Heap of size K. Iterate array. If element > heap top, pop and push element. Heap top is Kth largest. Or QuickSelect." },
+        { id: 76, type: 'Searching & Sorting', q: "Find First and Last Position.", ans: "Two Binary Searches. One to find the first occurrence (bias left), one to find the last occurrence (bias right)." },
+        { id: 77, type: 'Searching & Sorting', q: "Find Peak Element.", ans: "Binary Search. If mid < mid+1, peak is to the right (low=mid+1). Else peak is left or mid (high=mid)." },
+        { id: 78, type: 'Searching & Sorting', q: "Median of Two Sorted Arrays.", ans: "Partition both arrays such that left halves have same size as right halves. Binary search on partition position." },
+        { id: 79, type: 'Searching & Sorting', q: "Sort Colors (0s, 1s, 2s).", ans: "Dutch National Flag Algorithm. 3 pointers: low, mid, high. Swap mid based on value (0->low, 2->high)." },
+        { id: 80, type: 'Searching & Sorting', q: "Top K Frequent Elements.", ans: "Count frequencies with Map. Use Min-Heap of size K to keep top frequent, or Bucket Sort logic." },
 
-    // SEARCHING & SORTING (10 Questions)
-    { id: 71, type: 'Searching & Sorting', q: "Binary Search.", ans: "Sorted array. low=0, high=n-1. mid=(low+high)/2. If target < mid, high=mid-1. If target > mid, low=mid+1." },
-    { id: 72, type: 'Searching & Sorting', q: "Merge Sort.", ans: "Divide array in half. Recursively sort halves. Merge two sorted halves using two pointers. O(NlogN)." },
-    { id: 73, type: 'Searching & Sorting', q: "Quick Sort.", ans: "Pick pivot. Partition array so left < pivot and right > pivot. Recursively apply to left and right parts." },
-    { id: 74, type: 'Searching & Sorting', q: "Search in Rotated Sorted Array.", ans: "Binary Search. Determine which half is sorted. Check if target lies in that sorted range to decide direction." },
-    { id: 75, type: 'Searching & Sorting', q: "Kth Largest Element.", ans: "Use Min-Heap of size K. Iterate array. If element > heap top, pop and push element. Heap top is Kth largest. Or QuickSelect." },
-    { id: 76, type: 'Searching & Sorting', q: "Find First and Last Position.", ans: "Two Binary Searches. One to find the first occurrence (bias left), one to find the last occurrence (bias right)." },
-    { id: 77, type: 'Searching & Sorting', q: "Find Peak Element.", ans: "Binary Search. If mid < mid+1, peak is to the right (low=mid+1). Else peak is left or mid (high=mid)." },
-    { id: 78, type: 'Searching & Sorting', q: "Median of Two Sorted Arrays.", ans: "Partition both arrays such that left halves have same size as right halves. Binary search on partition position." },
-    { id: 79, type: 'Searching & Sorting', q: "Sort Colors (0s, 1s, 2s).", ans: "Dutch National Flag Algorithm. 3 pointers: low, mid, high. Swap mid based on value (0->low, 2->high)." },
-    { id: 80, type: 'Searching & Sorting', q: "Top K Frequent Elements.", ans: "Count frequencies with Map. Use Min-Heap of size K to keep top frequent, or Bucket Sort logic." },
+        // RECURSION & BACKTRACKING
+        { id: 81, type: 'Recursion', q: "Subsets (Power Set).", ans: "Backtracking. For each element, two choices: include it in current subset or exclude it. Recurse." },
+        { id: 82, type: 'Recursion', q: "Permutations of String/Array.", ans: "Swap current index with every subsequent index, recurse, then backtrack (swap back)." },
+        { id: 83, type: 'Recursion', q: "Combination Sum.", ans: "Sort candidates. Recurse with target - value. If target 0, add to result. If < 0, return. Loop start index to avoid duplicates." },
+        { id: 84, type: 'Recursion', q: "N-Queens Problem.", ans: "Place queen in row. Check safety (col, diagonals). If safe, move to next row. If stuck, backtrack." },
+        { id: 85, type: 'Recursion', q: "Sudoku Solver.", ans: "Find empty cell. Try 1-9. Check validity. If valid, recurse. If recursion returns true, done. Else backtrack (reset to 0)." },
+        { id: 86, type: 'Recursion', q: "Word Search in Grid.", ans: "DFS from every cell. Mark visited. Check neighbors for next char. Backtrack (unmark) after return." },
+        { id: 87, type: 'Recursion', q: "Generate Parentheses.", ans: "Track open and close counts. If open < n, add '('. If close < open, add ')'. Base case: length == 2*n." },
+        { id: 88, type: 'Recursion', q: "Palindrome Partitioning.", ans: "Loop through string. If prefix is palindrome, add to list and recurse on suffix. Backtrack." },
+        { id: 89, type: 'Recursion', q: "Letter Combinations of Phone Number.", ans: "Map digit to letters. Loop through letters for current digit, append to path, recurse for next digit." },
+        { id: 90, type: 'Recursion', q: "Rat in a Maze.", ans: "DFS. Try D, L, R, U. Mark cell visited. If reach destination, add path. Unmark (backtrack) when returning." },
 
-    // RECURSION & BACKTRACKING (10 Questions)
-    { id: 81, type: 'Recursion', q: "Subsets (Power Set).", ans: "Backtracking. For each element, two choices: include it in current subset or exclude it. Recurse." },
-    { id: 82, type: 'Recursion', q: "Permutations of String/Array.", ans: "Swap current index with every subsequent index, recurse, then backtrack (swap back)." },
-    { id: 83, type: 'Recursion', q: "Combination Sum.", ans: "Sort candidates. Recurse with target - value. If target 0, add to result. If < 0, return. Loop start index to avoid duplicates." },
-    { id: 84, type: 'Recursion', q: "N-Queens Problem.", ans: "Place queen in row. Check safety (col, diagonals). If safe, move to next row. If stuck, backtrack." },
-    { id: 85, type: 'Recursion', q: "Sudoku Solver.", ans: "Find empty cell. Try 1-9. Check validity. If valid, recurse. If recursion returns true, done. Else backtrack (reset to 0)." },
-    { id: 86, type: 'Recursion', q: "Word Search in Grid.", ans: "DFS from every cell. Mark visited. Check neighbors for next char. Backtrack (unmark) after return." },
-    { id: 87, type: 'Recursion', q: "Generate Parentheses.", ans: "Track open and close counts. If open < n, add '('. If close < open, add ')'. Base case: length == 2*n." },
-    { id: 88, type: 'Recursion', q: "Palindrome Partitioning.", ans: "Loop through string. If prefix is palindrome, add to list and recurse on suffix. Backtrack." },
-    { id: 89, type: 'Recursion', q: "Letter Combinations of Phone Number.", ans: "Map digit to letters. Loop through letters for current digit, append to path, recurse for next digit." },
-    { id: 90, type: 'Recursion', q: "Rat in a Maze.", ans: "DFS. Try D, L, R, U. Mark cell visited. If reach destination, add path. Unmark (backtrack) when returning." },
-
-    // --- END OF NEW QUESTIONS ---
-        // ARRAYS (Add 20-30 questions here)
+        // ARRAYS
         { id: 1, type: 'Arrays', q: "Find the maximum subarray sum (Kadane's Algorithm).", ans: "Initialize max_so_far = INT_MIN, max_ending_here = 0. Loop array: add current element to max_ending_here. If max_so_far < max_ending_here, update max_so_far. If max_ending_here < 0, reset it to 0." },
         { id: 2, type: 'Arrays', q: "Rotate an array by K positions.", ans: "Reverse the whole array. Then reverse the first K elements. Finally, reverse the remaining n-K elements." },
         { id: 3, type: 'Arrays', q: "Find the duplicate number in an array of N+1 integers.", ans: "Use the Floyd's Tortoise and Hare (Cycle Detection) algorithm. Treat values as pointers." },
@@ -224,8 +231,8 @@
         { id: 9, type: 'Arrays', q: "Stock Buy and Sell (Single transaction).", ans: "Track 'minPrice' so far and 'maxProfit'. For each price, profit = price - minPrice. Update maxProfit if higher." },
         { id: 10, type: 'Arrays', q: "Trapping Rain Water.", ans: "Precompute left_max and right_max arrays. Water at index i = min(left_max[i], right_max[i]) - arr[i]." },
         { id: 11, type: 'Arrays', q: "Spiral traversal of a matrix.", ans: "Use 4 boundaries: top, bottom, left, right. Loop while top<=bottom && left<=right, adjusting boundaries after each row/col traversal." },
-        
-        // STRINGS (Add 20-30 questions here)
+
+        // STRINGS
         { id: 12, type: 'Strings', q: "Check if a string is a Palindrome.", ans: "Two pointers: one at start, one at end. Compare characters while moving inwards. If mismatch, false." },
         { id: 13, type: 'Strings', q: "Find duplicates characters in a string.", ans: "Use a Map or frequency array (size 256 for ASCII) to count occurrences." },
         { id: 14, type: 'Strings', q: "Longest Substring Without Repeating Characters.", ans: "Sliding Window technique using a Set or Map to store index of characters." },
@@ -249,7 +256,7 @@
         { id: 30, type: 'Linked List', q: "Clone a Linked List with random pointer.", ans: "Three passes: 1. Interweave new nodes. 2. Copy random pointers. 3. Separate lists." },
         { id: 31, type: 'Linked List', q: "Middle of the Linked List.", ans: "Slow and Fast pointers. When fast reaches end, slow is at middle." },
 
-        // TREES (Sample)
+        // TREES
         { id: 32, type: 'Trees', q: "Maximum Depth of Binary Tree.", ans: "Recursive: max(depth(left), depth(right)) + 1." },
         { id: 33, type: 'Trees', q: "Invert Binary Tree.", ans: "Recursive: swap left and right children, then call recursively on children." },
         { id: 34, type: 'Trees', q: "Diameter of Binary Tree.", ans: "Longest path between any two nodes. Update max_diameter at every node as (left_height + right_height)." },
@@ -260,67 +267,66 @@
         { id: 39, type: 'Trees', q: "Serialize and Deserialize Binary Tree.", ans: "Use Preorder traversal (DFS) with a marker (e.g., 'null') for empty nodes." },
         { id: 40, type: 'Trees', q: "Kth Smallest Element in a BST.", ans: "Inorder traversal gives sorted elements. Return the k-th element." },
         { id: 41, type: 'Trees', q: "Subtree of Another Tree.", ans: "Traverse main tree, for each node check if subtree matches using an 'isSameTree' helper." },
-        // --- BATCH 3: NEW 50 QUESTIONS (IDs 91-140) ---
+        
+        // HEAPS
+        { id: 91, type: 'Heaps', q: "Merge K Sorted Lists.", ans: "Min-Heap. Push head of all K lists into heap. Pop min, add to result, push next node of extracted element." },
+        { id: 92, type: 'Heaps', q: "Find Median from Data Stream.", ans: "Two Heaps: Max-Heap for lower half, Min-Heap for upper half. Balance sizes. Median is top or average of tops." },
+        { id: 93, type: 'Heaps', q: "K Closest Points to Origin.", ans: "Max-Heap of size K based on distance. If new point distance < top, pop and push new. Remaining are closest." },
+        { id: 94, type: 'Heaps', q: "Task Scheduler.", ans: "Greedy + Heap/Map. Schedule most frequent tasks first. Use cooldown formula: (max_freq - 1) * (n + 1) + count_of_max_freq." },
+        { id: 95, type: 'Heaps', q: "Reorganize String.", ans: "Max-Heap of char frequencies. Pop most frequent, append, store in 'waitlist'. Pop next. Push 'waitlist' item back after next step." },
+        { id: 96, type: 'Heaps', q: "Kth Largest Element in a Stream.", ans: "Min-Heap of size K. If new val > root, pop and push new. Root is always the Kth largest." },
+        { id: 97, type: 'Heaps', q: "Sort Characters By Frequency.", ans: "Count freqs. Max-Heap (or Bucket Sort). Pop and append char 'freq' times." },
+        { id: 98, type: 'Heaps', q: "Minimum Cost to Connect Sticks.", ans: "Min-Heap. Always pop two smallest sticks, sum them (cost), push sum back. Repeat until 1 stick remains." },
+        { id: 99, type: 'Heaps', q: "Sliding Window Median.", ans: "Two Heaps (Lazy Removal) or Balanced BST. Similar to Median Stream but remove element going out of window." },
+        { id: 100, type: 'Heaps', q: "IPO / Maximum Capital.", ans: "Two heaps. Min-Heap for projects by capital. Max-Heap for projects by profit. Move affordable from Min to Max. Pick Max." },
 
-    // HEAPS & PRIORITY QUEUES (10 Questions)
-    { id: 91, type: 'Heaps', q: "Merge K Sorted Lists.", ans: "Min-Heap. Push head of all K lists into heap. Pop min, add to result, push next node of extracted element." },
-    { id: 92, type: 'Heaps', q: "Find Median from Data Stream.", ans: "Two Heaps: Max-Heap for lower half, Min-Heap for upper half. Balance sizes. Median is top or average of tops." },
-    { id: 93, type: 'Heaps', q: "K Closest Points to Origin.", ans: "Max-Heap of size K based on distance. If new point distance < top, pop and push new. Remaining are closest." },
-    { id: 94, type: 'Heaps', q: "Task Scheduler.", ans: "Greedy + Heap/Map. Schedule most frequent tasks first. Use cooldown formula: (max_freq - 1) * (n + 1) + count_of_max_freq." },
-    { id: 95, type: 'Heaps', q: "Reorganize String.", ans: "Max-Heap of char frequencies. Pop most frequent, append, store in 'waitlist'. Pop next. Push 'waitlist' item back after next step." },
-    { id: 96, type: 'Heaps', q: "Kth Largest Element in a Stream.", ans: "Min-Heap of size K. If new val > root, pop and push new. Root is always the Kth largest." },
-    { id: 97, type: 'Heaps', q: "Sort Characters By Frequency.", ans: "Count freqs. Max-Heap (or Bucket Sort). Pop and append char 'freq' times." },
-    { id: 98, type: 'Heaps', q: "Minimum Cost to Connect Sticks.", ans: "Min-Heap. Always pop two smallest sticks, sum them (cost), push sum back. Repeat until 1 stick remains." },
-    { id: 99, type: 'Heaps', q: "Sliding Window Median.", ans: "Two Heaps (Lazy Removal) or Balanced BST. Similar to Median Stream but remove element going out of window." },
-    { id: 100, type: 'Heaps', q: "IPO / Maximum Capital.", ans: "Two heaps. Min-Heap for projects by capital. Max-Heap for projects by profit. Move affordable from Min to Max. Pick Max." },
+        // BIT MANIPULATION
+        { id: 101, type: 'Bit Manipulation', q: "Single Number (Find non-duplicate).", ans: "XOR all elements. A ^ A = 0. 0 ^ B = B. The result is the unique number." },
+        { id: 102, type: 'Bit Manipulation', q: "Number of 1 Bits (Hamming Weight).", ans: "Loop while n!=0. n = n & (n-1) drops the lowest set bit. Count operations." },
+        { id: 103, type: 'Bit Manipulation', q: "Counting Bits (0 to n).", ans: "DP + Bit. dp[i] = dp[i >> 1] + (i & 1). Reuse count of i/2 plus checks if last bit is 1." },
+        { id: 104, type: 'Bit Manipulation', q: "Reverse Bits.", ans: "Loop 32 times. (result << 1) | (n & 1). n >>= 1. Extract last bit of n, push to result." },
+        { id: 105, type: 'Bit Manipulation', q: "Missing Number (XOR method).", ans: "XOR all indices 0..n. XOR all array values. XOR the two results together to find missing." },
+        { id: 106, type: 'Bit Manipulation', q: "Sum of Two Integers (No + or -).", ans: "XOR for sum without carry. AND + left shift for carry. Repeat until carry is 0." },
+        { id: 107, type: 'Bit Manipulation', q: "Power of Two.", ans: "Check if n > 0 AND (n & (n-1)) == 0. Powers of 2 have only one bit set." },
+        { id: 108, type: 'Bit Manipulation', q: "Single Number II (All appear 3x, one 1x).", ans: "Count bits at each position % 3. Or use digital logic circuit design (ones, twos variables)." },
+        { id: 109, type: 'Bit Manipulation', q: "Subsets (Using Bit Mask).", ans: "Loop i from 0 to 2^n - 1. If j-th bit of i is set, include nums[j] in current subset." },
+        { id: 110, type: 'Bit Manipulation', q: "Maximum XOR of Two Numbers.", ans: "Trie or Greedy bit building. Try to build max from MSB to LSB by looking for opposite bits in prefix set." },
 
-    // BIT MANIPULATION (10 Questions)
-    { id: 101, type: 'Bit Manipulation', q: "Single Number (Find non-duplicate).", ans: "XOR all elements. A ^ A = 0. 0 ^ B = B. The result is the unique number." },
-    { id: 102, type: 'Bit Manipulation', q: "Number of 1 Bits (Hamming Weight).", ans: "Loop while n!=0. n = n & (n-1) drops the lowest set bit. Count operations." },
-    { id: 103, type: 'Bit Manipulation', q: "Counting Bits (0 to n).", ans: "DP + Bit. dp[i] = dp[i >> 1] + (i & 1). Reuse count of i/2 plus checks if last bit is 1." },
-    { id: 104, type: 'Bit Manipulation', q: "Reverse Bits.", ans: "Loop 32 times. (result << 1) | (n & 1). n >>= 1. Extract last bit of n, push to result." },
-    { id: 105, type: 'Bit Manipulation', q: "Missing Number (XOR method).", ans: "XOR all indices 0..n. XOR all array values. XOR the two results together to find missing." },
-    { id: 106, type: 'Bit Manipulation', q: "Sum of Two Integers (No + or -).", ans: "XOR for sum without carry. AND + left shift for carry. Repeat until carry is 0." },
-    { id: 107, type: 'Bit Manipulation', q: "Power of Two.", ans: "Check if n > 0 AND (n & (n-1)) == 0. Powers of 2 have only one bit set." },
-    { id: 108, type: 'Bit Manipulation', q: "Single Number II (All appear 3x, one 1x).", ans: "Count bits at each position % 3. Or use digital logic circuit design (ones, twos variables)." },
-    { id: 109, type: 'Bit Manipulation', q: "Subsets (Using Bit Mask).", ans: "Loop i from 0 to 2^n - 1. If j-th bit of i is set, include nums[j] in current subset." },
-    { id: 110, type: 'Bit Manipulation', q: "Maximum XOR of Two Numbers.", ans: "Trie or Greedy bit building. Try to build max from MSB to LSB by looking for opposite bits in prefix set." },
+        // GREEDY
+        { id: 111, type: 'Greedy', q: "Gas Station.", ans: "If total gas < total cost, return -1. Else, iterate. If current_tank < 0, reset start to i+1 and tank to 0." },
+        { id: 112, type: 'Greedy', q: "Candy Distribution.", ans: "Two passes. Left-to-right: if ratings[i]>ratings[i-1], give more. Right-to-left: if ratings[i]>ratings[i+1], make sure i has more." },
+        { id: 113, type: 'Greedy', q: "N Meetings in One Room.", ans: "Sort by finish time. Pick first. If next start > prev finish, pick it and update finish time." },
+        { id: 114, type: 'Greedy', q: "Jump Game II (Min Jumps).", ans: "BFS/Greedy range. maintain 'current_end' and 'farthest'. When i reaches current_end, jumps++, current_end = farthest." },
+        { id: 115, type: 'Greedy', q: "Assign Cookies.", ans: "Sort children (greedy factor) and cookies. If cookie >= child's greed, assign and move both pointers." },
+        { id: 116, type: 'Greedy', q: "Lemonade Change.", ans: "Track $5 and $10 bills. If $5, take. If $10, give $5. If $20, give $10+$5 or three $5s. Prefer keeping $5s." },
+        { id: 117, type: 'Greedy', q: "Minimum Platforms for Trains.", ans: "Sort arrival and departure arrays. Two pointers. If arr <= dep, need platform++, i++. Else platform--, j++." },
+        { id: 118, type: 'Greedy', q: "Job Sequencing Problem.", ans: "Sort by profit. Find max deadline. Create time slots array. Fill slots from back (deadline) to front." },
+        { id: 119, type: 'Greedy', q: "Fractional Knapsack.", ans: "Calculate value/weight ratio. Sort descending. Take full items. If capacity remains, take fraction of next." },
+        { id: 120, type: 'Greedy', q: "Boats to Save People.", ans: "Sort weights. Lightest + Heaviest. If sum <= limit, put both in boat (left++, right--). Else put heaviest only (right--)." },
 
-    // GREEDY ALGORITHMS (10 Questions)
-    { id: 111, type: 'Greedy', q: "Gas Station.", ans: "If total gas < total cost, return -1. Else, iterate. If current_tank < 0, reset start to i+1 and tank to 0." },
-    { id: 112, type: 'Greedy', q: "Candy Distribution.", ans: "Two passes. Left-to-right: if ratings[i]>ratings[i-1], give more. Right-to-left: if ratings[i]>ratings[i+1], make sure i has more." },
-    { id: 113, type: 'Greedy', q: "N Meetings in One Room.", ans: "Sort by finish time. Pick first. If next start > prev finish, pick it and update finish time." },
-    { id: 114, type: 'Greedy', q: "Jump Game II (Min Jumps).", ans: "BFS/Greedy range. maintain 'current_end' and 'farthest'. When i reaches current_end, jumps++, current_end = farthest." },
-    { id: 115, type: 'Greedy', q: "Assign Cookies.", ans: "Sort children (greedy factor) and cookies. If cookie >= child's greed, assign and move both pointers." },
-    { id: 116, type: 'Greedy', q: "Lemonade Change.", ans: "Track $5 and $10 bills. If $5, take. If $10, give $5. If $20, give $10+$5 or three $5s. Prefer keeping $5s." },
-    { id: 117, type: 'Greedy', q: "Minimum Platforms for Trains.", ans: "Sort arrival and departure arrays. Two pointers. If arr <= dep, need platform++, i++. Else platform--, j++." },
-    { id: 118, type: 'Greedy', q: "Job Sequencing Problem.", ans: "Sort by profit. Find max deadline. Create time slots array. Fill slots from back (deadline) to front." },
-    { id: 119, type: 'Greedy', q: "Fractional Knapsack.", ans: "Calculate value/weight ratio. Sort descending. Take full items. If capacity remains, take fraction of next." },
-    { id: 120, type: 'Greedy', q: "Boats to Save People.", ans: "Sort weights. Lightest + Heaviest. If sum <= limit, put both in boat (left++, right--). Else put heaviest only (right--)." },
+        // TRIES
+        { id: 121, type: 'Tries & Advanced', q: "Implement Trie (Prefix Tree).", ans: "Node has array[26] and isEnd bool. Insert: traverse/create nodes. Search: traverse, check isEnd." },
+        { id: 122, type: 'Tries & Advanced', q: "Design Add and Search Words (Wildcards).", ans: "Trie. For '.' (dot), use recursion to check all children of current node." },
+        { id: 123, type: 'Tries & Advanced', q: "Word Search II (Boggle).", ans: "Backtracking + Trie. Build Trie from words. DFS on grid, checking if current path exists in Trie." },
+        { id: 124, type: 'Tries & Advanced', q: "Longest Word in Dictionary.", ans: "Sort words. Build Trie or Set. Check if prefix of word exists. Track longest valid word." },
+        { id: 125, type: 'Tries & Advanced', q: "Disjoint Set (Union Find).", ans: "Arrays parent[] and rank[]. Find: path compression. Union: attach smaller rank tree to larger." },
+        { id: 126, type: 'Tries & Advanced', q: "Number of Connected Components.", ans: "Use Union-Find. Initialize count=n. Decrement count for every successful union operation." },
+        { id: 127, type: 'Tries & Advanced', q: "Redundant Connection.", ans: "Iterate edges. Use Union-Find. If endpoints already have same parent, this edge creates a cycle (redundant)." },
+        { id: 128, type: 'Tries & Advanced', q: "Range Sum Query (Segment Tree).", ans: "Build tree where node stores sum of range. Update: O(log n). Query: O(log n) combining range sums." },
+        { id: 129, type: 'Tries & Advanced', q: "Count of Range Sum.", ans: "Merge Sort based solution (Divide and Conquer) or Segment Tree / Fenwick Tree." },
+        { id: 130, type: 'Tries & Advanced', q: "Design Twitter (Feed).", ans: "Map<User, List<Tweet>>. Map<User, Set<Followee>>. Merge K sorted lists logic to pull recent tweets." },
 
-    // TRIES & ADVANCED STRUCTURES (10 Questions)
-    { id: 121, type: 'Tries & Advanced', q: "Implement Trie (Prefix Tree).", ans: "Node has array[26] and isEnd bool. Insert: traverse/create nodes. Search: traverse, check isEnd." },
-    { id: 122, type: 'Tries & Advanced', q: "Design Add and Search Words (Wildcards).", ans: "Trie. For '.' (dot), use recursion to check all children of current node." },
-    { id: 123, type: 'Tries & Advanced', q: "Word Search II (Boggle).", ans: "Backtracking + Trie. Build Trie from words. DFS on grid, checking if current path exists in Trie." },
-    { id: 124, type: 'Tries & Advanced', q: "Longest Word in Dictionary.", ans: "Sort words. Build Trie or Set. Check if prefix of word exists. Track longest valid word." },
-    { id: 125, type: 'Tries & Advanced', q: "Disjoint Set (Union Find).", ans: "Arrays parent[] and rank[]. Find: path compression. Union: attach smaller rank tree to larger." },
-    { id: 126, type: 'Tries & Advanced', q: "Number of Connected Components.", ans: "Use Union-Find. Initialize count=n. Decrement count for every successful union operation." },
-    { id: 127, type: 'Tries & Advanced', q: "Redundant Connection.", ans: "Iterate edges. Use Union-Find. If endpoints already have same parent, this edge creates a cycle (redundant)." },
-    { id: 128, type: 'Tries & Advanced', q: "Range Sum Query (Segment Tree).", ans: "Build tree where node stores sum of range. Update: O(log n). Query: O(log n) combining range sums." },
-    { id: 129, type: 'Tries & Advanced', q: "Count of Range Sum.", ans: "Merge Sort based solution (Divide and Conquer) or Segment Tree / Fenwick Tree." },
-    { id: 130, type: 'Tries & Advanced', q: "Design Twitter (Feed).", ans: "Map<User, List<Tweet>>. Map<User, Set<Followee>>. Merge K sorted lists logic to pull recent tweets." },
-
-    // MATH & PUZZLES (10 Questions)
-    { id: 131, type: 'Math', q: "Sieve of Eratosthenes (Primes).", ans: "Bool array size n. Iterate 2 to sqrt(n). If true, mark all multiples as false. Remaining true are primes." },
-    { id: 132, type: 'Math', q: "Greatest Common Divisor (GCD).", ans: "Euclidean algorithm. gcd(a, b) = gcd(b, a % b). Repeat until b == 0. Return a." },
-    { id: 133, type: 'Math', q: "Excel Sheet Column Number.", ans: "Base-26 conversion. Result = Result * 26 + (char - 'A' + 1)." },
-    { id: 134, type: 'Math', q: "Happy Number.", ans: "Detect cycle using Set or Slow/Fast pointers. Replace n with sum of squares of digits. Target 1." },
-    { id: 135, type: 'Math', q: "Factorial Trailing Zeroes.", ans: "Count factors of 5 in n!. result += n/5, n /= 5. (Since 2s are abundant, 5s determine 10s)." },
-    { id: 136, type: 'Math', q: "Power(x, n) - Binary Exponentiation.", ans: "If n even: x^n = (x^2)^(n/2). If n odd: x^n = x * x^(n-1). Handle negative n." },
-    { id: 137, type: 'Math', q: "Palindrome Number (Integer).", ans: "Revert half of the number. Loop: reverted = reverted * 10 + x % 10. Compare x with reverted." },
-    { id: 138, type: 'Math', q: "Sqrt(x).", ans: "Binary Search between 1 and x. If mid*mid == x return mid. Else adjust range." },
-    { id: 139, type: 'Math', q: "Divide Two Integers (No operators).", ans: "Use bit shifting. Subtract divisor shifted left by k from dividend, add 2^k to quotient." },
-    { id: 140, type: 'Math', q: "Permutation Sequence (k-th).", ans: "Factorial number system. Determine index of first digit using k / (n-1)!. Remove digit. Update k." },
+        // MATH
+        { id: 131, type: 'Math', q: "Sieve of Eratosthenes (Primes).", ans: "Bool array size n. Iterate 2 to sqrt(n). If true, mark all multiples as false. Remaining true are primes." },
+        { id: 132, type: 'Math', q: "Greatest Common Divisor (GCD).", ans: "Euclidean algorithm. gcd(a, b) = gcd(b, a % b). Repeat until b == 0. Return a." },
+        { id: 133, type: 'Math', q: "Excel Sheet Column Number.", ans: "Base-26 conversion. Result = Result * 26 + (char - 'A' + 1)." },
+        { id: 134, type: 'Math', q: "Happy Number.", ans: "Detect cycle using Set or Slow/Fast pointers. Replace n with sum of squares of digits. Target 1." },
+        { id: 135, type: 'Math', q: "Factorial Trailing Zeroes.", ans: "Count factors of 5 in n!. result += n/5, n /= 5. (Since 2s are abundant, 5s determine 10s)." },
+        { id: 136, type: 'Math', q: "Power(x, n) - Binary Exponentiation.", ans: "If n even: x^n = (x^2)^(n/2). If n odd: x^n = x * x^(n-1). Handle negative n." },
+        { id: 137, type: 'Math', q: "Palindrome Number (Integer).", ans: "Revert half of the number. Loop: reverted = reverted * 10 + x % 10. Compare x with reverted." },
+        { id: 138, type: 'Math', q: "Sqrt(x).", ans: "Binary Search between 1 and x. If mid*mid == x return mid. Else adjust range." },
+        { id: 139, type: 'Math', q: "Divide Two Integers (No operators).", ans: "Use bit shifting. Subtract divisor shifted left by k from dividend, add 2^k to quotient." },
+        { id: 140, type: 'Math', q: "Permutation Sequence (k-th).", ans: "Factorial number system. Determine index of first digit using k / (n-1)!. Remove digit. Update k." },
     ];
 
     // --- LOGIC ---
@@ -345,13 +351,15 @@
     }
 
     function startQuiz(type) {
-        // Filter questions by type and shuffle
         const filtered = database.filter(q => q.type === type);
         
-        // Randomly pick 10 (or less if not enough questions)
+        // Pick 10 random
         state.currentQuestions = filtered.sort(() => 0.5 - Math.random()).slice(0, 10);
         state.score = { solved: 0, unsolved: 0 };
         
+        // Reset status
+        state.currentQuestions.forEach(q => q.status = null);
+
         document.getElementById('home-section').style.display = 'none';
         document.getElementById('quiz-section').style.display = 'block';
         document.getElementById('quiz-title').innerText = `${type} Test`;
@@ -366,18 +374,28 @@
         state.currentQuestions.forEach((q, index) => {
             const card = document.createElement('div');
             card.className = 'question-card';
+            
+            // Unique ID for the answer box
+            const ansId = `ans-${index}`;
+
             card.innerHTML = `
                 <div class="badge">Question ${index + 1}</div>
                 <h3>${q.q}</h3>
+                
                 <div class="options">
-                    <button class="btn btn-outline" onclick="markSolved(${index}, this)">I Solved It</button>
-                    <button class="btn btn-outline" onclick="showAnswer(${index})">Show Answer</button>
+                    <button class="btn btn-outline" onclick="toggleAnswer('${ansId}')">Show Answer & Verify</button>
                 </div>
-                <div id="ans-${index}" class="answer-box">
+
+                <div id="${ansId}" class="answer-box">
                     <strong>Approach/Hint:</strong><br>
                     ${q.ans}
-                    <div style="margin-top:10px;">
-                        <button class="btn" style="background:#ef4444; font-size:0.8rem;" onclick="markUnsolved(${index}, this)">Couldn't Solve</button>
+                    
+                    <div class="verification-buttons">
+                        <p style="width:100%; text-align:center; margin:0 0 10px 0; font-size:0.9rem; color:#666;">Did you get it right?</p>
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <button class="btn" style="background:#10b981;" onclick="markResult(${index}, 'solved', this)">Yes, I Knew It</button>
+                        <button class="btn" style="background:#ef4444;" onclick="markResult(${index}, 'unsolved', this)">No, I Missed It</button>
                     </div>
                 </div>
             `;
@@ -387,27 +405,25 @@
         document.getElementById('finish-btn').style.display = 'block';
     }
 
-    function showAnswer(index) {
-        document.getElementById(`ans-${index}`).style.display = 'block';
+    function toggleAnswer(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'block';
     }
 
-    function markSolved(index, btnElement) {
-        // Visual feedback
-        btnElement.style.background = '#10b981';
-        btnElement.style.color = 'white';
-        btnElement.innerText = 'Marked Solved';
-        // Disable sibling buttons to prevent double scoring
-        btnElement.nextElementSibling.disabled = true;
+    function markResult(index, status, btnElement) {
+        state.currentQuestions[index].status = status;
         
-        // We calculate score at the end based on UI state or tracking array
-        // For simplicity, we just track in state
-        state.currentQuestions[index].status = 'solved';
-    }
+        // Visual feedback - disable both buttons in the container
+        const parentDiv = btnElement.parentElement;
+        const buttons = parentDiv.querySelectorAll('button');
+        buttons.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = '0.5';
+        });
 
-    function markUnsolved(index, btnElement) {
-        state.currentQuestions[index].status = 'unsolved';
-        btnElement.innerText = 'Marked Failed';
-        btnElement.disabled = true;
+        // Highlight selected
+        btnElement.style.opacity = '1';
+        btnElement.innerText = status === 'solved' ? "Saved: Solved" : "Saved: Missed";
     }
 
     function calculateResults() {
@@ -427,30 +443,27 @@
 
     function renderChart(solved, unsolved) {
         const ctx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(ctx, {
+        
+        if(window.myChart instanceof Chart) {
+            window.myChart.destroy();
+        }
+
+        window.myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Solved', 'Needs Practice'],
                 datasets: [{
                     label: '# of Questions',
                     data: [solved, unsolved],
-                    backgroundColor: [
-                        'rgba(16, 185, 129, 0.6)',
-                        'rgba(239, 68, 68, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(239, 68, 68, 1)'
-                    ],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderColor: ['#10b981', '#ef4444'],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, max: 10 }
-                }
+                scales: { y: { beginAtZero: true, max: 10 } }
             }
         });
     }
@@ -460,23 +473,15 @@
         const recText = document.getElementById('recommendation-text');
         
         let msg = "";
-        
-        if (percentage >= 90) {
-            msg = "🌟 <strong>Excellent!</strong> You are ready for hard problems.<br>Suggested Routine: Solve <strong>2 Hard</strong> problems per day to maintain this streak.";
-        } else if (percentage >= 70) {
-            msg = "👍 <strong>Good Job!</strong> You have strong basics.<br>Suggested Routine: Solve <strong>2 Medium + 1 Hard</strong> problem per day.";
-        } else if (percentage >= 40) {
-            msg = "⚠️ <strong>Average.</strong> You struggled with some concepts.<br>Suggested Routine: Solve <strong>3 Medium</strong> problems per day. Review the logic of the ones you missed.";
-        } else {
-            msg = "🛑 <strong>Needs Improvement.</strong> Don't give up!<br>Suggested Routine: Solve <strong>5 Easy + 2 Medium</strong> problems per day. Focus on understanding the patterns.";
-        }
+        if (percentage >= 90) msg = "🌟 <strong>Excellent!</strong> You are ready for hard problems.<br>Suggested Routine: Solve <strong>2 Hard</strong> problems per day.";
+        else if (percentage >= 70) msg = "👍 <strong>Good Job!</strong> You have strong basics.<br>Suggested Routine: Solve <strong>2 Medium + 1 Hard</strong> problem per day.";
+        else if (percentage >= 40) msg = "⚠️ <strong>Average.</strong> You struggled with some concepts.<br>Suggested Routine: Solve <strong>3 Medium</strong> problems per day.";
+        else msg = "🛑 <strong>Needs Improvement.</strong> Don't give up!<br>Suggested Routine: Solve <strong>5 Easy + 2 Medium</strong> problems per day.";
         
         recText.innerHTML = msg;
     }
 
-    // Initialize the app
     init();
-
 </script>
 </body>
 </html>
